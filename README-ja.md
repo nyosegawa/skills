@@ -6,9 +6,29 @@
 
 ## ディレクトリ概要
 
+- `skills`: このリポジトリで作成したオリジナル skill
 - `reference_docs`: Skill 作成時に役立つ外部ドキュメントや参照資料
 - `reference_skills`: 外部 GitHub リポジトリから取り込んだ skill サンプル
 - `scripts`: 参照資料の取得・生成に使うユーティリティスクリプト
+
+## `skills`
+
+### repo-analyzer
+
+[gtc](https://github.com/nyosegawa/gemini-tree-token-counter) と Gemini 3 Pro を使って、任意の GitHub / ローカルリポジトリを分析するスキル。
+
+- GitHub URL・ローカルパスの両方に対応
+- アーキテクチャ分析、セキュリティ監査、コード品質レビュー、依存関係分析など
+- gtc のトークン数を使った正確なコスト見積もりを API 呼び出し前に提示
+- すべての Gemini API 呼び出し前にユーザー確認を要求
+- 大規模リポジトリでは Gemini を使って最適な抽出コマンドを自動設計
+
+**前提条件:** Python 3.10+, `gtc`, `google-genai`, `GEMINI_API_KEY`
+
+```bash
+pip install gemini-tree-token-counter google-genai
+export GEMINI_API_KEY="your_key_here"
+```
 
 ## `reference_docs`
 

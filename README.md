@@ -6,9 +6,29 @@ Personal skills repository by Sakasegawa (逆瀬川): <https://x.com/gyakuse>
 
 ## Directory Overview
 
+- `skills`: Original skills created in this repository.
 - `reference_docs`: External documents and references that help when creating skills.
 - `reference_skills`: Imported skill examples from external GitHub repositories.
 - `scripts`: Utility scripts for fetching or generating reference assets.
+
+## `skills`
+
+### repo-analyzer
+
+Analyze any GitHub or local repository using [gtc](https://github.com/nyosegawa/gemini-tree-token-counter) and Gemini 3 Pro.
+
+- Supports GitHub URLs and local paths
+- Architecture analysis, security audit, code quality review, dependency analysis, and more
+- Uses gtc's token count for accurate cost estimation before each Gemini API call
+- Asks for user confirmation with estimated cost before every API call
+- Handles large repositories by using Gemini to plan optimal extraction commands
+
+**Requirements:** Python 3.10+, `gtc`, `google-genai`, `GEMINI_API_KEY`
+
+```bash
+pip install gemini-tree-token-counter google-genai
+export GEMINI_API_KEY="your_key_here"
+```
 
 ## `reference_docs`
 
