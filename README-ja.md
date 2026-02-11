@@ -36,6 +36,20 @@ python scripts/convert_guide_to_md.py
 - 実行前に `GEMINI_API_KEY` を設定してください。
 - 生成コストはおおよそ `$0.15-$0.20`（`20-30円`程度）です。
 
+### Gemini 3 / Nano Banana ドキュメントを `.md` で取得
+
+```bash
+curl -L "https://ai.google.dev/gemini-api/docs/gemini-3.md.txt" \
+  -o reference_docs/gemini-3-developers-guide.md
+curl -L "https://ai.google.dev/gemini-api/docs/image-generation.md.txt" \
+  -o reference_docs/image-generation-nanobanana.md
+```
+
+生成先:
+
+- `reference_docs/gemini-3-developers-guide.md`
+- `reference_docs/image-generation-nanobanana.md`
+
 ## `reference_skills`
 
 このディレクトリのルール:

@@ -36,6 +36,20 @@ Notes:
 - Set `GEMINI_API_KEY` before running the script.
 - Estimated generation cost is about `$0.15-$0.20` (roughly `20-30 JPY`).
 
+### Download Gemini 3 and Nano Banana docs as `.md`
+
+```bash
+curl -L "https://ai.google.dev/gemini-api/docs/gemini-3.md.txt" \
+  -o reference_docs/gemini-3-developers-guide.md
+curl -L "https://ai.google.dev/gemini-api/docs/image-generation.md.txt" \
+  -o reference_docs/image-generation-nanobanana.md
+```
+
+Output:
+
+- `reference_docs/gemini-3-developers-guide.md`
+- `reference_docs/image-generation-nanobanana.md`
+
 ## `reference_skills`
 
 Rules for this directory:
