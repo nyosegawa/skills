@@ -28,16 +28,29 @@ Use this table with the **exact token count from gtc output** to calculate costs
 | ≤ 200k tokens | $2.00 / 1M tokens | $12.00 / 1M tokens |
 | > 200k tokens | $4.00 / 1M tokens | $18.00 / 1M tokens |
 
-**Cost calculation using gtc token count:**
-- gtc outputs `Grand Total Tokens: XXXXX` — use this as the input token count
+**Cost calculation:**
+- Use the **actual token count of the file being sent** (see "Understanding gtc Token Counts" below)
 - For ≤200k input tokens: cost ≈ (tokens × $0.000002) + (65536 × $0.000012) = input + ~$0.79
 - For >200k input tokens: cost ≈ (tokens × $0.000004) + (65536 × $0.000018) = input + ~$1.18
+
+## Understanding gtc Token Counts
+
+**`Grand Total Tokens` from gtc is the estimated CONTENT token count** — i.e., how many tokens the file contents would be if extracted with `-c`. The tree.txt file itself is much smaller (typically 1-5% of this number).
+
+Example: If `Grand Total Tokens: 5,000,000`, it means the full repo content is ~5M tokens, but tree.txt itself might only be ~50-100k tokens.
+
+**When calculating Gemini API costs, always use the actual file size being sent, not `Grand Total Tokens`.**
+
+To measure the actual token count of a file:
+```bash
+wc -w $TMPDIR/tree.txt | awk '{printf "%.0f\n", $1 * 1.3}'  # rough estimate: words × 1.3
+```
 
 ## CRITICAL: User Confirmation Before Every Gemini API Call
 
 **You MUST confirm with the user before EVERY Gemini 3 Pro API call.** Always:
 
-1. Parse `Grand Total Tokens: XXXXX` from the gtc output
+1. Determine the actual token count of the file(s) being sent (use `wc -w` × 1.3 as rough estimate)
 2. Calculate cost using the pricing table above
 3. Present purpose, token count, and estimated cost
 4. Wait for explicit user approval
@@ -47,7 +60,7 @@ Format:
 ```
 Gemini 3 Pro API call:
 - Purpose: [what will be analyzed]
-- Input: [N] tokens (from gtc)
+- Input: ~[N] tokens (estimated from file size)
 - Estimated cost: ~$X.XX (input: $X.XX + max output: $X.XX)
 Proceed?
 ```
@@ -58,11 +71,14 @@ Proceed?
 
 **Gemini 3 Pro has a 1M token context window — let it do the analysis, not you.**
 
-- Do NOT read tree files to understand the repository structure yourself
+- Do NOT read tree.txt with sed/grep/cat to understand the repository structure
+- Do NOT manually browse the tree output to find relevant directories
 - Do NOT make multiple targeted gtc calls to explore the codebase
 - Do NOT use grep, GitHub API, or other tools to read individual files from the repository
-- Your job is ONLY: run gtc → check token count → send to Gemini → present results
+- Your job is ONLY: run gtc → check `Grand Total Tokens` → send to Gemini → present results
 - Gemini is the analyzer. You are the orchestrator.
+
+**Common mistake to avoid:** When `Grand Total Tokens` > 800k, do NOT try to manually read the tree to find relevant paths. Instead, send tree.txt to Gemini for planning — tree.txt is small (typically <100k tokens) and cheap to process. The `Grand Total Tokens` number represents the full repo content size, NOT the cost of the planning step.
 
 ## Workflow
 
@@ -95,7 +111,7 @@ Where `<target>` is a GitHub URL or local path. Optional flags:
 
 **If Grand Total Tokens > 800,000:**
 - The repository is too large to send in full. Use Gemini to plan extraction.
-- **[USER CONFIRMATION REQUIRED]** Present tree token count and cost estimate for the planning call.
+- **[USER CONFIRMATION REQUIRED]** Measure tree.txt's actual size with `wc -w $TMPDIR/tree.txt | awk '{printf "%.0f\n", $1 * 1.3}'` and present this as the input token count (NOT Grand Total Tokens — that's the content estimate, tree.txt is much smaller).
 - Write a planning prompt to `$TMPDIR/plan_prompt.txt`:
 
 ```
@@ -128,7 +144,7 @@ Rules:
 
 ### Step 4: Analyze with Gemini
 
-**[USER CONFIRMATION REQUIRED]** Parse `Grand Total Tokens` from content.txt, calculate cost, and confirm.
+**[USER CONFIRMATION REQUIRED]** Parse `Grand Total Tokens` from content.txt (this time it IS the actual content being sent), calculate cost, and confirm.
 
 Write the analysis prompt to `$TMPDIR/analysis_prompt.txt` (see templates below). Then run:
 
