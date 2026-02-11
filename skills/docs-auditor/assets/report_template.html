@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs Audit Report</title>
+<style>
+  :root {
+    --bg: #faf9f5; --fg: #141413; --accent: #d97757;
+    --success: #788c5d; --error: #c44; --info: #6a9bcc;
+    --border: #e0ddd8; --card-bg: #fff; --muted: #666;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--fg); line-height: 1.6;
+    padding: 2rem; max-width: 1200px; margin: 0 auto;
+  }
+  h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  h2 { font-size: 1.3rem; margin: 2rem 0 1rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.3rem; }
+  h3 { font-size: 1.1rem; margin: 1rem 0 0.5rem; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge-good { background: #e8f0e0; color: var(--success); }
+  .badge-warn { background: #fef3e0; color: #b8860b; }
+  .badge-bad { background: #fde8e8; color: var(--error); }
+  .badge-info { background: #e8f0f8; color: var(--info); }
+  .badge-muted { background: #eee; color: var(--muted); }
+  .stat { display: inline-block; margin-right: 1.5rem; }
+  .stat-value { font-size: 1.4rem; font-weight: 700; }
+  .stat-label { font-size: 0.75rem; color: var(--muted); }
+  .summary-bar { display: flex; gap: 2rem; flex-wrap: wrap; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { font-weight: 600; background: #f5f4f0; }
+  .incident { border-left: 3px solid var(--border); padding: 0.5rem 0.75rem; margin: 0.5rem 0; border-radius: 0 4px 4px 0; font-size: 0.85rem; }
+  .incident-beneficial { border-left-color: var(--success); background: #f5f9f0; }
+  .incident-harmful { border-left-color: var(--error); background: #fff5f5; }
+  .incident-unnecessary { border-left-color: #b8860b; background: #fffcf0; }
+  .incident-neutral { border-left-color: var(--border); background: #fafafa; }
+  .token-bar { height: 8px; border-radius: 4px; background: var(--border); margin: 4px 0; }
+  .token-bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+  .freshness-fresh { color: var(--success); }
+  .freshness-aging { color: #b8860b; }
+  .freshness-stale { color: var(--error); }
+  .freshness-very_stale { color: var(--error); font-weight: bold; }
+  .freshness-superseded { color: var(--muted); text-decoration: line-through; }
+  .nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; position: sticky; top: 0; background: var(--bg); padding: 0.5rem 0; z-index: 10; }
+  .nav a { text-decoration: none; color: var(--fg); padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; border: 1px solid var(--border); }
+  .nav a:hover { background: var(--accent); color: white; border-color: var(--accent); }
+  .empty { text-align: center; color: var(--muted); padding: 2rem; font-style: italic; }
+  details { margin: 0.5rem 0; }
+  summary { cursor: pointer; font-weight: 500; }
+  .directive { padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .directive:last-child { border-bottom: none; }
+  .compliance-bar { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Docs Audit Report</h1>
+<div class="meta" id="meta"></div>
+
+<nav class="nav">
+  <a href="#summary">Summary</a>
+  <a href="#always-on">Always-On</a>
+  <a href="#docs">Per-Doc</a>
+  <a href="#budget">Budget</a>
+  <a href="#freshness">Freshness</a>
+  <a href="#recommendations">Recommendations</a>
+  <a href="#never-read">Never Read</a>
+</nav>
+
+<div id="summary" class="summary-bar"></div>
+
+<h2 id="always-on">Always-On Docs (CLAUDE.md / AGENTS.md)</h2>
+<div id="always-on-content"></div>
+
+<h2 id="docs">Per-Doc Health</h2>
+<div id="doc-cards"></div>
+
+<h2 id="budget">Context Budget</h2>
+<div id="context-budget"></div>
+
+<h2 id="freshness">Freshness Dashboard</h2>
+<div id="freshness-content"></div>
+
+<h2 id="recommendations">Recommendations</h2>
+<div id="recommendations-content"></div>
+
+<h2 id="never-read">Never Referenced Docs</h2>
+<div id="never-read-content"></div>
+
+<footer>Generated by docs-auditor</footer>
+
+<script>
+/*__EMBEDDED_DATA__*/
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof REPORT_DATA === 'undefined') {
+    document.body.innerHTML = '<div class="empty">No data loaded. Run the audit first.</div>';
+    return;
+  }
+
+  const d = REPORT_DATA;
+  const impact = d.doc_impact_report || {};
+  const alwaysOn = d.always_on_report || {};
+  const portfolio = d.portfolio_analysis || {};
+  const plan = d.improvement_plan || {};
+  const manifest = d.doc_manifest || {};
+
+  // Meta
+  const meta = impact.meta || {};
+  const budget = manifest.context_budget || {};
+  document.getElementById('meta').innerHTML =
+    `Generated: ${new Date(d.generated_at).toLocaleString()} | ` +
+    `Sessions: ${meta.sessions_analyzed || '?'} | ` +
+    `Turns: ${meta.turns_analyzed || '?'} | ` +
+    `Docs: ${meta.docs_in_scope || budget.doc_count || '?'}`;
+
+  // Summary bar
+  const health = portfolio.portfolio_health || {};
+  const hBadge = {'healthy':'badge-good','needs_attention':'badge-warn','critical':'badge-bad'}[health.overall_score] || 'badge-info';
+  const fClass = {'fresh':'freshness-fresh','aging':'freshness-aging','stale':'freshness-stale'}[health.freshness_score] || '';
+
+  document.getElementById('summary').innerHTML = `
+    <div class="stat"><div class="stat-value"><span class="badge ${hBadge}">${health.overall_score||'?'}</span></div><div class="stat-label">Portfolio Health</div></div>
+    <div class="stat"><div class="stat-value"><span class="${fClass}">${health.freshness_score||'?'}</span></div><div class="stat-label">Freshness</div></div>
+    <div class="stat"><div class="stat-value">${budget.total_doc_tokens||'?'}</div><div class="stat-label">Total Tokens</div></div>
+    <div class="stat"><div class="stat-value">${budget.always_on_tokens||'?'}</div><div class="stat-label">Always-On</div></div>
+    <div class="stat"><div class="stat-value">${health.always_on_utilization!=null?(health.always_on_utilization*100).toFixed(0)+'%':'?'}</div><div class="stat-label">Utilization</div></div>
+    <div class="stat"><div class="stat-value">${meta.total_doc_reads||0}</div><div class="stat-label">Doc Reads</div></div>
+  `;
+
+  // Always-on docs
+  const aoReports = (alwaysOn.always_on_reports || []);
+  if (aoReports.length) {
+    let html = '';
+    for (const ao of aoReports) {
+      const util = ao.overall_utilization!=null?(ao.overall_utilization*100).toFixed(0):'?';
+      html += `<div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><h3>${esc(ao.filepath)}</h3><span class="badge badge-info">${util}% util</span></div>
+        <div style="font-size:0.85rem;margin-bottom:0.5rem">${ao.content_tokens} tokens | Dead weight: ~${ao.dead_weight_tokens||0} tokens</div>
+        <div style="font-size:0.85rem;margin-bottom:0.5rem">${esc(ao.health_assessment||'')}</div>`;
+      if (ao.directives && ao.directives.length) {
+        html += '<details><summary>Directives (' + ao.directives.length + ')</summary>';
+        for (const dir of ao.directives) {
+          if (dir.category === 'context_info') continue;
+          const compPct = dir.compliance_rate!=null?(dir.compliance_rate*100).toFixed(0):'?';
+          const relPct = dir.relevance_rate!=null?(dir.relevance_rate*100).toFixed(0):'?';
+          const compColor = dir.compliance_rate>=0.9?'var(--success)':dir.compliance_rate>=0.7?'#b8860b':'var(--error)';
+          html += `<div class="directive">
+            <span class="badge badge-muted">${dir.category}</span>
+            ${esc(dir.directive_text.substring(0,120))}
+            <span style="float:right;font-size:0.8rem">
+              rel: ${relPct}% |
+              <span style="color:${compColor}">comp: ${compPct}%</span>
+            </span>
+          </div>`;
+        }
+        html += '</details>';
+      }
+      html += '</div>';
+    }
+    document.getElementById('always-on-content').innerHTML = html;
+  } else {
+    document.getElementById('always-on-content').innerHTML = '<div class="empty">No always-on doc analysis available</div>';
+  }
+
+  // Per-doc health cards
+  const docReports = impact.doc_reports || [];
+  if (docReports.length) {
+    let html = '<div class="grid">';
+    for (const r of docReports.sort((a,b) => (b.stats?.total_reads||0) - (a.stats?.total_reads||0))) {
+      const s = r.stats || {};
+      const score = s.impact_score!=null?s.impact_score.toFixed(2):'?';
+      const scoreBadge = s.impact_score>0.2?'badge-good':s.impact_score<0?'badge-bad':s.impact_score===0?'badge-warn':'badge-info';
+      let incHtml = '';
+      for (const inc of (r.incidents||[]).slice(0,3)) {
+        const cls = 'incident-'+inc.verdict;
+        incHtml += `<div class="incident ${cls}"><strong>${inc.verdict}</strong> [${inc.confidence||'?'}]: ${esc(inc.detail)}</div>`;
+      }
+      html += `<div class="card">
+        <div class="card-header"><h3>${esc(r.filepath)}</h3><span class="badge ${scoreBadge}">${score}</span></div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px">${r.doc_type}</div>
+        <div style="font-size:0.85rem">Reads: ${s.total_reads||0} | +${s.beneficial||0} | =${s.neutral||0} | -${s.harmful||0} | ?${s.unnecessary||0}</div>
+        <div style="margin-top:0.5rem;font-size:0.85rem">${esc(r.health_assessment||'')}</div>
+        ${incHtml?`<details><summary>Incidents</summary>${incHtml}</details>`:''}
+        ${r.suggested_action?`<div style="margin-top:0.5rem;font-size:0.8rem;color:var(--accent)"><strong>Action:</strong> ${esc(r.suggested_action)}</div>`:''}
+      </div>`;
+    }
+    html += '</div>';
+    document.getElementById('doc-cards').innerHTML = html;
+  } else {
+    document.getElementById('doc-cards').innerHTML = '<div class="empty">No per-doc impact data</div>';
+  }
+
+  // Context budget
+  const budgetDocs = (portfolio.context_budget||{}).per_doc || [];
+  if (budgetDocs.length) {
+    const maxTok = Math.max(...budgetDocs.map(b=>b.content_tokens||0),1);
+    let html = '<table><tr><th>Document</th><th>Type</th><th>Tokens</th><th>Reads</th><th>Impact</th><th>Efficiency</th><th style="width:100px"></th></tr>';
+    for (const b of budgetDocs.sort((a,c)=>(c.content_tokens||0)-(a.content_tokens||0))) {
+      const effClass = b.efficiency_rating==='high_roi'?'badge-good':b.efficiency_rating==='acceptable'?'badge-info':b.efficiency_rating==='low_roi'?'badge-warn':'badge-bad';
+      const pct = ((b.content_tokens||0)/maxTok*100).toFixed(0);
+      html += `<tr>
+        <td style="font-size:0.85rem;word-break:break-all">${esc(b.filepath)}</td>
+        <td>${b.doc_type||''}</td>
+        <td>${b.content_tokens||0}</td>
+        <td>${b.read_count||0}</td>
+        <td>${b.impact_score!=null?b.impact_score.toFixed(2):'—'}</td>
+        <td><span class="badge ${effClass}">${b.efficiency_rating||'?'}</span></td>
+        <td><div class="token-bar"><div class="token-bar-fill" style="width:${pct}%"></div></div></td>
+      </tr>`;
+    }
+    html += '</table>';
+    document.getElementById('context-budget').innerHTML = html;
+  } else {
+    document.getElementById('context-budget').innerHTML = '<div class="empty">No budget data</div>';
+  }
+
+  // Freshness
+  const fresh = portfolio.freshness_analysis || {};
+  const dist = fresh.freshness_distribution || {};
+  let freshHtml = `<div style="margin-bottom:1rem">
+    <span class="badge badge-good">fresh: ${dist.fresh||0}</span>
+    <span class="badge badge-warn">aging: ${dist.aging||0}</span>
+    <span class="badge badge-bad">stale: ${dist.stale||0}</span>
+    <span class="badge badge-bad">very stale: ${dist.very_stale||0}</span>
+    <span class="badge badge-muted">superseded: ${dist.superseded||0}</span>
+  </div>`;
+  if (fresh.staleness_harm_correlation) {
+    freshHtml += `<p style="font-size:0.9rem;margin-bottom:1rem">${esc(fresh.staleness_harm_correlation)}</p>`;
+  }
+  const risky = fresh.high_risk_stale_docs || [];
+  if (risky.length) {
+    freshHtml += '<table><tr><th>Document</th><th>Age (days)</th><th>Reads</th><th>Harmful</th><th>Risk</th></tr>';
+    for (const r of risky) {
+      freshHtml += `<tr><td>${esc(r.filepath)}</td><td>${r.age_days}</td><td>${r.read_count}</td><td>${r.harmful_count}</td><td style="font-size:0.85rem">${esc(r.risk_description)}</td></tr>`;
+    }
+    freshHtml += '</table>';
+  }
+  document.getElementById('freshness-content').innerHTML = freshHtml || '<div class="empty">No freshness data</div>';
+
+  // Recommendations
+  const recs = plan.recommendations || [];
+  if (recs.length) {
+    let html = '';
+    for (const r of recs.sort((a,b)=>{const p={high:0,medium:1,low:2};return (p[a.priority]||3)-(p[b.priority]||3);})) {
+      const prioClass = r.priority==='high'?'badge-bad':r.priority==='medium'?'badge-warn':'badge-info';
+      html += `<div class="card" style="margin-bottom:1rem">
+        <div class="card-header">
+          <h3 style="font-size:1rem;word-break:break-all">${esc(r.filepath)}</h3>
+          <div><span class="badge ${prioClass}">${r.priority}</span> <span class="badge badge-muted">${r.action}</span></div>
+        </div>
+        <div style="font-size:0.85rem;margin-bottom:0.5rem">${esc(r.rationale)}</div>
+        ${r.implementation_hint?`<div style="font-size:0.8rem;color:var(--muted)"><strong>How:</strong> ${esc(r.implementation_hint)}</div>`:''}
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.3rem">
+          Token delta: ${r.context_token_delta>0?'+':''}${r.context_token_delta||0} |
+          Risk: ${esc(r.risk||'?')}
+        </div>
+      </div>`;
+    }
+    document.getElementById('recommendations-content').innerHTML = html;
+  } else {
+    document.getElementById('recommendations-content').innerHTML = '<div class="empty">No recommendations</div>';
+  }
+
+  // Never read
+  const neverRead = impact.docs_never_read || [];
+  if (neverRead.length) {
+    let html = '<table><tr><th>Document</th><th>Type</th><th>Tokens (wasted)</th></tr>';
+    let totalWaste = 0;
+    for (const nr of neverRead) {
+      totalWaste += nr.content_tokens || 0;
+      html += `<tr><td>${esc(nr.filepath)}</td><td>${nr.doc_type}</td><td>${nr.content_tokens||'?'}</td></tr>`;
+    }
+    html += `</table><p style="font-size:0.85rem;color:var(--muted)">Total potential savings: ${totalWaste} tokens</p>`;
+    document.getElementById('never-read-content').innerHTML = html;
+  } else {
+    document.getElementById('never-read-content').innerHTML = '<div class="empty">All docs were referenced at least once</div>';
+  }
+});
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
