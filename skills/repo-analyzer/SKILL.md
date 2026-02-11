@@ -54,6 +54,16 @@ Proceed?
 
 **Do NOT proceed without explicit user approval.**
 
+## CRITICAL: Do NOT Analyze the Repository Yourself
+
+**Gemini 3 Pro has a 1M token context window — let it do the analysis, not you.**
+
+- Do NOT read tree files to understand the repository structure yourself
+- Do NOT make multiple targeted gtc calls to explore the codebase
+- Do NOT use grep, GitHub API, or other tools to read individual files from the repository
+- Your job is ONLY: run gtc → check token count → send to Gemini → present results
+- Gemini is the analyzer. You are the orchestrator.
+
 ## Workflow
 
 ### Step 1: Create Temp Directory
@@ -62,42 +72,30 @@ Proceed?
 TMPDIR=$(mktemp -d /tmp/repo-analyzer.XXXXXX)
 ```
 
-Store the path for use in subsequent commands.
+### Step 2: Extract Repository Tree and Check Size
 
-### Step 2: Extract Repository Tree
-
-Run gtc to get the repository structure (without file contents):
+Run gtc to get the token count (without file contents):
 
 ```bash
 gtc <target> > $TMPDIR/tree.txt 2>&1
-```
-
-Where `<target>` is a GitHub URL or local path.
-
-Optional gtc flags:
-- `-b <branch>` — specific branch
-- `-d <dir>` — focus on a subdirectory (can be used multiple times)
-- `-e <pattern>` — exclude glob patterns (can be used multiple times)
-- `--commit <hash>` — specific commit
-- `--date <YYYY-MM-DD>` — state at a specific date
-
-After running, extract the token count and line count:
-
-```bash
 grep "Grand Total Tokens:" $TMPDIR/tree.txt
-wc -l < $TMPDIR/tree.txt
 ```
 
-### Step 3: Plan Content Extraction Commands
+Where `<target>` is a GitHub URL or local path. Optional flags:
+- `-b <branch>`, `-d <dir>`, `-e <pattern>`, `--commit <hash>`, `--date <YYYY-MM-DD>`
 
-**If tree ≤ 500 lines:**
-- Read `$TMPDIR/tree.txt` directly
-- Based on the user's request, decide which directories/files are relevant
-- Construct the `gtc -c` command with appropriate `-d` and `-e` flags
+### Step 3: Extract Content (Based on Token Count)
 
-**If tree > 500 lines:**
-- The tree is too large to read in Claude's context
-- **[USER CONFIRMATION REQUIRED]** Use Gemini to analyze the tree and suggest optimal `gtc` commands
+**If Grand Total Tokens ≤ 800,000:**
+- Extract everything with no filtering:
+  ```bash
+  gtc <target> -c > $TMPDIR/content.txt 2>&1
+  ```
+- Proceed directly to Step 4.
+
+**If Grand Total Tokens > 800,000:**
+- The repository is too large to send in full. Use Gemini to plan extraction.
+- **[USER CONFIRMATION REQUIRED]** Present tree token count and cost estimate for the planning call.
 - Write a planning prompt to `$TMPDIR/plan_prompt.txt`:
 
 ```
@@ -109,13 +107,12 @@ User's goal: [user's analysis request]
 Rules:
 - Use -d flags to focus on the most relevant directories
 - Use -e flags to exclude noise (tests, vendor, generated code, lock files, etc.)
-- Keep total content under 500k tokens if possible
+- Aim for total content under 800k tokens
 - Prioritize core source code over configuration and documentation
-- Output ONLY the gtc command(s), one per line, using <TARGET> as a placeholder for the repo path/URL
+- Output ONLY the gtc command(s), one per line, using <TARGET> as a placeholder
 ```
 
-- Calculate cost from `Grand Total Tokens` in tree.txt, present to user for confirmation
-- If approved, run:
+- Run:
   ```bash
   python3 <SKILL_DIR>/scripts/gemini_query.py \
     --prompt-file $TMPDIR/plan_prompt.txt \
@@ -123,31 +120,17 @@ Rules:
     --output $TMPDIR/plan.txt \
     --max-tokens 4096
   ```
-- Read `$TMPDIR/plan.txt` and use the suggested commands
+- Execute the suggested gtc commands:
+  ```bash
+  gtc <target> -c [flags from plan] > $TMPDIR/content.txt 2>&1
+  ```
+- If the result still exceeds 900,000 tokens, add more `-e` flags and retry.
 
-### Step 4: Extract Content
+### Step 4: Analyze with Gemini
 
-Run the planned `gtc -c` command to get file contents:
+**[USER CONFIRMATION REQUIRED]** Parse `Grand Total Tokens` from content.txt, calculate cost, and confirm.
 
-```bash
-gtc <target> -c [planned flags] > $TMPDIR/content.txt 2>&1
-```
-
-**IMPORTANT:** The `-c` flag includes full file contents — always redirect to a file.
-
-Extract the token count:
-
-```bash
-grep "Grand Total Tokens:" $TMPDIR/content.txt
-```
-
-If tokens exceed 900,000, narrow scope with more `-d` / `-e` flags before proceeding.
-
-### Step 5: Analyze with Gemini
-
-**[USER CONFIRMATION REQUIRED]** Use the token count from Step 4 to calculate cost and confirm with the user.
-
-Write the analysis prompt to `$TMPDIR/analysis_prompt.txt`, tailored to the user's request (see templates below). Then run:
+Write the analysis prompt to `$TMPDIR/analysis_prompt.txt` (see templates below). Then run:
 
 ```bash
 python3 <SKILL_DIR>/scripts/gemini_query.py \
@@ -158,7 +141,7 @@ python3 <SKILL_DIR>/scripts/gemini_query.py \
 
 Read and present `$TMPDIR/result.md` to the user.
 
-### Step 6: Cleanup
+### Step 5: Cleanup
 
 ```bash
 rm -rf $TMPDIR
