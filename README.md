@@ -30,6 +30,15 @@ pip install gemini-tree-token-counter google-genai
 export GEMINI_API_KEY="your_key_here"
 ```
 
+### sakasegawa-blog-writer
+
+Write tech blog posts in Sakasegawa's writing style. Conducts web research and generates technically accurate, readable articles.
+
+- Outputs Markdown with Lume-compatible frontmatter to `posts/{slug}.md`
+- Auto-inserts "Written by Coding Agent" notice and `<!--more-->` excerpt marker
+- All URLs formatted as Markdown links (including References)
+- Includes style guide, article template, and research methodology references
+
 ## `reference_docs`
 
 `reference_docs` stores external documents useful for skill authoring.

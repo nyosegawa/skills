@@ -30,6 +30,15 @@ pip install gemini-tree-token-counter google-genai
 export GEMINI_API_KEY="your_key_here"
 ```
 
+### sakasegawa-blog-writer
+
+逆瀬川スタイルで技術ブログ記事を執筆するスキル。Web調査を行い、技術的に正確かつ読みやすい記事を生成する。
+
+- Lume 対応フロントマター付きの Markdown を `posts/{slug}.md` に出力
+- 「Coding Agentで執筆」注記と `<!--more-->` 抜粋マーカーを自動挿入
+- References 含め、すべての URL を Markdown リンク形式で記述
+- 文体ガイド、記事テンプレート、調査方法論のリファレンスを同梱
+
 ## `reference_docs`
 
 `reference_docs` には、skill 作成に有用な外部ドキュメントを格納します。
