@@ -7,11 +7,12 @@ Personal skills repository by Sakasegawa (逆瀬川): <https://x.com/gyakuse>
 ## Directory Overview
 
 - `skills`: Original skills created in this repository.
+- `private_skills`: Personal skills with environment-specific configurations (e.g., local paths).
 - `reference_docs`: External documents and references that help when creating skills.
 - `reference_skills`: Imported skill examples from external GitHub repositories.
 - `scripts`: Utility scripts for fetching or generating reference assets.
 
-## `skills`
+## Skills
 
 ### repo-analyzer
 
@@ -30,11 +31,15 @@ pip install gemini-tree-token-counter google-genai
 export GEMINI_API_KEY="your_key_here"
 ```
 
+## Private Skills
+
 ### sakasegawa-blog-writer
 
 Write tech blog posts in Sakasegawa's writing style. Conducts web research and generates technically accurate, readable articles.
 
 - Outputs Markdown with Lume-compatible frontmatter to `posts/{slug}.md`
+- Target repository: `nyosegawa.github.io`
+- Includes a publishing flow with user confirmation before `git push`
 - Auto-inserts "Written by Coding Agent" notice and `<!--more-->` excerpt marker
 - All URLs formatted as Markdown links (including References)
 - Includes style guide, article template, and research methodology references

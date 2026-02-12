@@ -7,11 +7,12 @@
 ## ディレクトリ概要
 
 - `skills`: このリポジトリで作成したオリジナル skill
+- `private_skills`: 環境固有の設定を含む個人用 skill（ローカルパス指定など）
 - `reference_docs`: Skill 作成時に役立つ外部ドキュメントや参照資料
 - `reference_skills`: 外部 GitHub リポジトリから取り込んだ skill サンプル
 - `scripts`: 参照資料の取得・生成に使うユーティリティスクリプト
 
-## `skills`
+## Skills
 
 ### repo-analyzer
 
@@ -30,11 +31,15 @@ pip install gemini-tree-token-counter google-genai
 export GEMINI_API_KEY="your_key_here"
 ```
 
+## Private Skills
+
 ### sakasegawa-blog-writer
 
 逆瀬川スタイルで技術ブログ記事を執筆するスキル。Web調査を行い、技術的に正確かつ読みやすい記事を生成する。
 
 - Lume 対応フロントマター付きの Markdown を `posts/{slug}.md` に出力
+- 出力先リポジトリ: `nyosegawa.github.io`
+- 公開前にユーザー確認を挟む公開フロー付き
 - 「Coding Agentで執筆」注記と `<!--more-->` 抜粋マーカーを自動挿入
 - References 含め、すべての URL を Markdown リンク形式で記述
 - 文体ガイド、記事テンプレート、調査方法論のリファレンスを同梱

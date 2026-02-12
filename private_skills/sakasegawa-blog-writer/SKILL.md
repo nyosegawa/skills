@@ -3,16 +3,16 @@ name: sakasegawa-blog-writer
 description: 技術ブログ記事を逆瀬川スタイルで執筆する。トピックや書きたい内容を与えられたときにWeb調査を行い、技術的に正確かつ読みやすい記事を生成する。Use when user asks to write a blog post, article, tech blog, Zenn article, or says "記事を書いて", "ブログ書いて", "技術記事", "解説記事", "まとめ記事" etc.
 ---
 
-# gyakuse-blog-writer
+# sakasegawa-blog-writer
 
-逆瀬川 (@gyakuse) の文体・構成・思考プロセスを再現して技術ブログ記事を書くスキル。
+逆瀬川 ([@gyakuse](https://x.com/gyakuse)) の文体・構成・思考プロセスを再現して技術ブログ記事を書くスキル。
 
 ## 出力先
 
-記事は Lume ブログリポジトリ（nyosegawa.github.io）に Markdown ファイルとして出力する。
+記事は以下のリポジトリに Markdown ファイルとして出力する。
 
-- 出力先: ユーザーの作業ディレクトリ、または引数で指定されたパスの `posts/{slug}.md`（slug はトピックに基づく英語ケバブケース）
-- 出力先が指定されない場合はカレントディレクトリの `posts/` に出力する
+- リポジトリ: `/Users/sakasegawa/src/github.com/nyosegawa/nyosegawa.github.io`
+- 出力先: `posts/{slug}.md`（slug はトピックに基づく英語ケバブケース）
 - フロントマター形式（Lume Simple Blog テーマ）:
 
 ```yaml
@@ -25,12 +25,7 @@ author: 逆瀬川ちゃん
 ---
 ```
 
-- 記事の先頭（フロントマター直後）に以下を必ず挿入する:
-
-```html
-<small style="color: #7a8a98;">この記事はCoding Agentを使って執筆されています。</small>
-```
-
+- 「この記事はCoding Agentを使って執筆されています。」はCSSで自動挿入されるため、記事本文には書かない
 - 記事冒頭の挨拶の後、適切な位置に `<!--more-->` を入れる（トップページの抜粋範囲を制御するため）
 
 ## Instructions
@@ -89,6 +84,29 @@ author: 逆瀬川ちゃん
 3. 文体の一貫性: `references/style-guide.md` のルールに従っているか
 4. 技術的正確性: 数値、用語、リンクが正しいか
 5. 読みやすさ: 音読して気持ちよく読めるリズムか
+
+### Step 5: 公開
+
+記事が完成したら、以下の手順で公開する。**公開前に必ずユーザーの確認を得ること。**
+
+1. 完成した記事の全文をユーザーに提示する
+2. ユーザーに以下を確認してもらう:
+   - 記事の内容に問題がないか
+   - タイトル・タグ・description が適切か
+   - 公開してよいか
+3. ユーザーから承認を得たら、ブログリポジトリで以下を実行する:
+
+```bash
+cd /Users/sakasegawa/src/github.com/nyosegawa/nyosegawa.github.io
+git add posts/{slug}.md
+git commit -m "Add post: {記事タイトル}"
+git push origin main
+```
+
+4. push が完了したら、公開 URL を伝える:
+   - `https://nyosegawa.github.io/posts/{slug}/`
+
+**重要: ユーザーの明示的な承認なしに git push しないこと。**
 
 ## 調査の方針
 
