@@ -98,7 +98,10 @@ author: 逆瀬川ちゃん
 
 ```bash
 cd /Users/sakasegawa/src/github.com/nyosegawa/nyosegawa.github.io
-git add posts/{slug}.md
+# OGPカード画像を生成（新規記事分のみ自動生成される）
+python3 scripts/gen-og-images.py
+# 記事とOG画像をまとめてコミット
+git add posts/{slug}.md og/{slug}.png
 git commit -m "Add post: {記事タイトル}"
 git push origin main
 ```
