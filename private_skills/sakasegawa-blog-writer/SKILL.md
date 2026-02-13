@@ -11,7 +11,7 @@ description: 技術ブログ記事を逆瀬川スタイルで執筆する。ト�
 
 記事は以下のリポジトリに Markdown ファイルとして出力する。
 
-- リポジトリ: `/Users/sakasegawa/src/github.com/nyosegawa/nyosegawa.github.io`
+- リポジトリ: `~/src/github.com/nyosegawa/nyosegawa.github.io`
 - 出力先: `posts/{slug}.md`（slug はトピックに基づく英語ケバブケース）
 - フロントマター形式（Lume Simple Blog テーマ）:
 
@@ -97,7 +97,7 @@ author: 逆瀬川ちゃん
 3. ユーザーから承認を得たら、ブログリポジトリで以下を実行する:
 
 ```bash
-cd /Users/sakasegawa/src/github.com/nyosegawa/nyosegawa.github.io
+cd ~/src/github.com/nyosegawa/nyosegawa.github.io
 # OGPカード画像を生成（新規記事分のみ自動生成される）
 python3 scripts/gen-og-images.py
 # 記事とOG画像をまとめてコミット
