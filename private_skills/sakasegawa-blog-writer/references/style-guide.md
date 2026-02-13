@@ -152,6 +152,24 @@ Appendixは本編より技術的に深くてよい。論文の詳細、アルゴ
 OK: [Anthropic API Pricing](https://docs.anthropic.com/en/docs/about-claude/pricing)
 NG: https://docs.anthropic.com/en/docs/about-claude/pricing
 
+## 文末ルール
+
+### 敬体(です・ます調)
+
+本文は一貫して敬体で書く。常体(だ・である調)を混ぜない。
+
+### 体言止め禁止
+
+本文中の体言止め(名詞や名詞句で文を終えること)は禁止。必ず「です」「ます」等の敬体で終える。
+
+OK: ワンタップで承認できます。
+NG: ワンタップで承認。
+
+OK: コピペで使えるようにしています。
+NG: コピペで使えるように。
+
+ただし見出し、表のセル、リスト項目内では体言止めOK。
+
 ## やってはいけないこと
 
 - 太字を多用すること
@@ -162,3 +180,4 @@ NG: https://docs.anthropic.com/en/docs/about-claude/pricing
 - すべての英単語の前後にスペースを入れること
 - リスト末尾に句点をつけること
 - URLを生のまま(Markdownリンクにせずに)記述すること
+- 本文で体言止めを使うこと(見出し、表、リスト内はOK)
